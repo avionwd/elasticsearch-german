@@ -1,0 +1,82 @@
+# Create document with sample data
+POST {{host}}:{{port}}/{{index}}/_doc
+Content-Type: application/json
+
+< ../data/sample1.json
+
+###
+
+GET {{host}}:{{port}}/{{index}}/_search
+
+###
+# Test analyzer according to its settings
+
+POST {{host}}:{{port}}/{{index}}/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "german_search",
+  "text": "Telefunken Bluetooth Kopfhörer KH6000B"
+}
+
+###
+# Get aggregated normalized tokens
+
+POST {{host}}:{{port}}/{{index}}/_search
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "test": {
+      "terms": {
+        "field": "terms.normalize"
+      }
+    }
+  }
+}
+
+###
+# Get completion suggestions
+# Documentation: https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-suggesters-completion.html
+
+POST {{host}}:{{port}}/{{index}}/_search
+Content-Type: application/json
+
+{
+  "size": 0,
+  "suggest": {
+    "test": {
+      "prefix": "kopfh",
+      "completion": {
+        "field": "terms.complete",
+        "skip_duplicates": true
+      }
+    }
+  }
+}
+
+###
+# Get completion suggestion with filtering by category context
+# Documentation: https://www.elastic.co/guide/en/elasticsearch/reference/6.5/suggester-context.html
+
+POST {{host}}:{{port}}/{{index}}/_search
+Content-Type: application/json
+
+{
+  "size": 0,
+  "suggest": {
+    "test": {
+      "prefix": "kh",
+      "completion": {
+        "field": "terms.complete_context",
+        "skip_duplicates": true,
+        "context": {
+          "termsContext": ["bluetooth"]
+        }
+      }
+    }
+  }
+}
+
+###

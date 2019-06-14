@@ -1,0 +1,17 @@
+// Delete index from ES instance
+DELETE {{host}}:{{port}}/{{index}}
+
+###
+
+// Create index with settings and mappings
+PUT {{host}}:{{port}}/{{index}}
+Content-Type: application/json
+
+< ../config/index.json
+
+###
+
+// Fetch all information about index
+GET {{host}}:{{port}}/{{index}}
+
+###

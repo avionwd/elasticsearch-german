@@ -1,0 +1,86 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "analysis": {
+      "filter": {
+        "german_stemmer": {
+          "type": "stemmer",
+          "language": "german"
+        },
+        "german_word_delimiter": {
+          "type": "word_delimiter",
+          "preserve_original": true
+        }
+      },
+      "analyzer": {
+        "german": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "german_word_delimiter",
+            "lowercase",
+            "german_normalization",
+            "german_stemmer",
+            "unique"
+          ]
+        },
+        "german_search": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "german_normalization",
+            "german_stemmer",
+            "unique"
+          ]
+        }
+      },
+      "normalizer": {
+        "german": {
+          "type": "custom",
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "title": {
+          "type": "text"
+        },
+        "terms": {
+          "type": "keyword",
+          "fields": {
+            "normalize": {
+              "type": "keyword",
+              "normalizer": "german"
+            },
+            "complete": {
+              "type": "completion",
+              "analyzer": "german",
+              "search_analyzer": "german_search"
+            },
+            "complete_context": {
+              "type": "completion",
+              "analyzer": "german",
+              "search_analyzer": "german_search",
+              "contexts": [
+                {
+                  "name": "termsContext",
+                  "type": "category",
+                  "path": "terms.normalize"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
